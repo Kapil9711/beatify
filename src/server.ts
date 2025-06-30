@@ -6,7 +6,6 @@ import colors from "colors/safe";
 import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./swagger";
 import allRoutes from "./routes";
-import CustomerError from "./middleware/customerError";
 import globalErrorHandler from "./middleware/golobalErrorHandler";
 const app = express();
 
@@ -19,10 +18,6 @@ app.use(express.urlencoded({ extended: true, limit: "10kb" }));
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use("/api", allRoutes);
 
-// Handle unhandled routes
-// app.all("*", (req, res, next) => {
-//   next(new CustomerError(`${req.originalUrl} route not found`, 404));
-// });
 // Middleware to handle errors
 app.use(globalErrorHandler);
 
