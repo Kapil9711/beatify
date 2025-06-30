@@ -76,7 +76,7 @@ export const loginUser = async (
   })
     .select("userName email password profileImage")
     .lean();
-  console.log(isExist);
+
   if (!isExist) throw new CustomError("User Not Found", 400);
   const isPasswordMatch = await bcypt.compare(password, isExist.password);
 
