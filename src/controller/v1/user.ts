@@ -1,8 +1,9 @@
 import { NextFunction, Request, Response } from "express";
 import UserModel from "../../model/user";
 import getFormatedResponse from "../../utlis/getFormatedResponse";
-import { UserInput } from "../../types/responseBodyTypes";
+import { UserInput, UserLoginInput } from "../../types/responseBodyTypes";
 import CustomError from "../../middleware/customError";
+import bcypt from "bcrypt";
 
 //getAllUser => /api/v1/user
 export const getAllUser = async (
@@ -58,6 +59,38 @@ export const checkUserNameAlreadyTaken = async (
     getFormatedResponse({
       message: "Username Available",
       isSuccess: false,
+    })
+  );
+};
+
+//loginUser => /api/v1/user/login
+export const loginUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { email, password }: UserLoginInput = req.body;
+
+  const isExist = await UserModel.findOne({
+    email: email,
+  })
+    .select("userName email password profileImage")
+    .lean();
+  console.log(isExist);
+  if (!isExist) throw new CustomError("User Not Found", 400);
+  const isPasswordMatch = await bcypt.compare(password, isExist.password);
+
+  if (!isPasswordMatch)
+    throw new CustomError("Username or Password Incorrect", 401);
+  return res.status(200).json(
+    getFormatedResponse({
+      message: "Login Successfull",
+      isSuccess: true,
+      data: {
+        userName: isExist.userName,
+        email: isExist.email,
+        profileImage: isExist.profileImage,
+      },
     })
   );
 };
