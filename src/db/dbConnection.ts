@@ -1,5 +1,11 @@
 import mongoose from "mongoose";
 import colors from "colors/safe";
+mongoose.set("toJSON", {
+  transform: (doc, ret) => {
+    delete ret.__v;
+    return ret;
+  },
+});
 const ConnectDb = async (mongoUrl: string) => {
   try {
     const options = {

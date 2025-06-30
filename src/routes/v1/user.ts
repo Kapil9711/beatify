@@ -1,30 +1,15 @@
 import { NextFunction, Request, Response, Router } from "express";
 import UserModel from "../../model/user";
 import getFormatedResponse from "../../utlis/getFormatedResponse";
-import CustomerError from "../../middleware/customerError";
+import CustomError from "../../middleware/customError";
 import catchAsyncError from "../../middleware/catchAsyncError";
 import validate from "../../middleware/validation";
 import { userSchema } from "../../types/zodSchema";
 import { UserInput } from "../../types/responseBodyTypes";
+import { createUser, getAllUser } from "../../controller/v1/user";
 const router = Router();
 
-router.route("/").get(
-  catchAsyncError(async (req: Request, res: Response, next: NextFunction) => {
-    const users = await UserModel.find({});
-    const formatedResponse = getFormatedResponse({
-      message: "User Fetched Successfully",
-      data: users,
-    });
-    res.status(200).json(formatedResponse);
-  })
-);
-
-router.route("/").post(
-  validate(userSchema),
-  catchAsyncError(async (req: Request, res: Response, next: NextFunction) => {
-    const userInput: UserInput = req.body;
-    res.status(200).json(getFormatedResponse());
-  })
-);
+router.route("/").get(catchAsyncError(getAllUser));
+router.route("/").post(validate(userSchema), catchAsyncError(createUser));
 
 export default router;

@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import CustomError from "./customerError";
+import CustomError from "./customError";
 import { z } from "zod";
 
 const validate =

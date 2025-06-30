@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { IUser } from "../types/schemaTypes";
+import bcrypt from "bcrypt";
 
 const userSchema = new mongoose.Schema<IUser>({
   userName: {
@@ -16,7 +17,7 @@ const userSchema = new mongoose.Schema<IUser>({
     type: String,
     required: [true, "Password is required"],
     minlength: [8, "Password must be at least 8 characters long"],
-    maxlength: [16, "Password must be less then 16 characters"],
+    select: false,
   },
   profileImage: {
     type: String,
@@ -25,10 +26,18 @@ const userSchema = new mongoose.Schema<IUser>({
   isAdmin: {
     type: Boolean,
     default: false,
+    select: false,
   },
 });
 
 // userSchema.index({ userName: 1 });
+
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) {
+    return next();
+  }
+  this.password = await bcrypt.hash(this.password, 10);
+});
 
 const UserModel = mongoose.model<IUser>("User", userSchema);
 
