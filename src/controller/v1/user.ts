@@ -36,3 +36,28 @@ export const createUser = async (
     })
   );
 };
+
+//createUser => /api/v1/user
+export const checkUserNameAlreadyTaken = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { userName }: any = req.query;
+  if (!userName) throw new CustomError("UserName is Required", 400);
+  const isExist = await UserModel.findOne({ userName: userName });
+  if (isExist)
+    return res.status(200).json(
+      getFormatedResponse({
+        message: "Username Already Taken",
+        isSuccess: true,
+      })
+    );
+
+  res.status(200).json(
+    getFormatedResponse({
+      message: "Username Available",
+      isSuccess: false,
+    })
+  );
+};

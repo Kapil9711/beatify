@@ -80,3 +80,34 @@
  *       400:
  *         description: Validation error or bad request
  */
+
+/**
+ * @swagger
+ * /api/v1/user/is-username-taken:
+ *   get:
+ *     summary: Check if a username is already taken
+ *     tags:
+ *       - User
+ *     parameters:
+ *       - in: query
+ *         name: userName
+ *         schema:
+ *           type: string
+ *         description: The username to check for availability
+ *     responses:
+ *       200:
+ *         description: Status of the username (available or taken)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Username Already Taken
+ *                 isSuccess:
+ *                   type: boolean
+ *                   example: true
+ *       400:
+ *         description: Username is not provided in query params
+ */
