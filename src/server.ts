@@ -3,21 +3,24 @@ import "dotenv/config";
 import ConnectDb from "./db/dbConnection";
 import pathVariable from "./config/pathVariables";
 import colors from "colors/safe";
-import swaggerUi from "swagger-ui-express";
-import { swaggerSpec } from "./swagger";
 import allRoutes from "./routes";
 import globalErrorHandler from "./middleware/golobalErrorHandler";
-import { isAuthenticatedUser } from "./middleware/auth";
+import path from "path";
 const app = express();
+
+
+// serve static file from public
+app.use(express.static('public'));
+// Set the view engine to EJS
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
 
 //middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true, limit: "10kb" }));
 
-// routes
-// Swagger route
-app.use("/api-docs",isAuthenticatedUser ,swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-app.use("/api", allRoutes);
+
+app.use("/", allRoutes);
 
 // Middleware to handle errors
 app.use(globalErrorHandler);

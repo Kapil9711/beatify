@@ -19,7 +19,7 @@ export const isAuthenticatedUser = catchAsyncError(async (req:ExtendedRequest, r
     token = req.headers.authorization.split(" ")[1];
   }
 
-  if(path != '/api-docs' && !token){
+  if(path == '/api-docs' && !token){
     return res.redirect(302,'/api-docs/login')
   }
 
@@ -34,14 +34,14 @@ export const isAuthenticatedUser = catchAsyncError(async (req:ExtendedRequest, r
   if(typeof decoded === 'object' && decoded !== null){
     var payload = decoded as JwtPayload
   }else {
-     if(path != '/api-docs'){
+     if(path == '/api-docs'){
     return res.redirect(302,'/api-docs/login')}
     throw new CustomError('Invalid jwt token',401)
   }
   
   const user = await UserModel.findById(payload.id).select('isAdmin userName email profileImage');
   if(!user){
-    if(path != '/api-docs'){
+    if(path == '/api-docs'){
     return res.redirect(302,'/api-docs/login')}
     throw new CustomError('User Not Found',404);
   } 
@@ -52,7 +52,7 @@ export const isAuthenticatedUser = catchAsyncError(async (req:ExtendedRequest, r
 // handling users roles
 export const authorize =  catchAsyncError(async (req:ExtendedRequest, res:Response, next:NextFunction) => {
     if(req.user?.isAdmin) return next();
-     if(req.path != '/api-docs'){
+     if(req.path == '/api-docs'){
     return res.redirect(302,'/api-docs/login')}
     throw new CustomError('Not Authorize To Access The Information',401)    
 })

@@ -12,9 +12,10 @@ import {
   getAllUser,
   loginUser,
 } from "../../controller/v1/user";
+import { authorize, isAuthenticatedUser } from "../../middleware/auth";
 const router = Router();
 
-router.route("/").get(catchAsyncError(getAllUser));
+router.route("/").get(isAuthenticatedUser,authorize,catchAsyncError(getAllUser));
 router.route("/").post(validate(userSchema), catchAsyncError(createUser));
 router
   .route("/is-username-taken")
