@@ -4,6 +4,8 @@ import getFormatedResponse from "../../utlis/getFormatedResponse";
 import { UserInput, UserLoginInput } from "../../types/responseBodyTypes";
 import CustomError from "../../middleware/customError";
 import bcypt from "bcrypt";
+import jwt from 'jsonwebtoken'
+import pathVariable from "../../config/pathVariables";
 
 //getAllUser => /api/v1/user
 export const getAllUser = async (
@@ -82,15 +84,18 @@ export const loginUser = async (
 
   if (!isPasswordMatch)
     throw new CustomError("Username or Password Incorrect", 401);
-  return res.status(200).json(
-    getFormatedResponse({
+  const payload:any = {userName:isExist.userName,email:isExist.email,}
+  const options = {expiresIn:pathVariable.JWT_EXPIRE_TIME}
+  var token = jwt.sign(payload , pathVariable.JWT_SECRET ,options as any);
+  const formatedResponse =   getFormatedResponse({
       message: "Login Successfull",
       isSuccess: true,
       data: {
         userName: isExist.userName,
         email: isExist.email,
         profileImage: isExist.profileImage,
-      },
+      }
     })
-  );
+  return res.status(200).json(
+       {...formatedResponse,token});
 };
