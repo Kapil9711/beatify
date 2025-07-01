@@ -6,10 +6,11 @@ import CustomError from "../../middleware/customError";
 import bcypt from "bcrypt";
 import jwt from 'jsonwebtoken'
 import pathVariable from "../../config/pathVariables";
+import { ExtendedRequest } from "../../types/express/request";
 
 //getAllUser => /api/v1/user
 export const getAllUser = async (
-  req: Request,
+  req: ExtendedRequest,
   res: Response,
   next: NextFunction
 ) => {
@@ -23,7 +24,7 @@ export const getAllUser = async (
 
 //createUser => /api/v1/user
 export const createUser = async (
-  req: Request,
+  req: ExtendedRequest,
   res: Response,
   next: NextFunction
 ) => {
@@ -42,7 +43,7 @@ export const createUser = async (
 
 //createUser => /api/v1/user
 export const checkUserNameAlreadyTaken = async (
-  req: Request,
+  req: ExtendedRequest,
   res: Response,
   next: NextFunction
 ) => {
@@ -67,7 +68,7 @@ export const checkUserNameAlreadyTaken = async (
 
 //loginUser => /api/v1/user/login
 export const loginUser = async (
-  req: Request,
+  req: ExtendedRequest,
   res: Response,
   next: NextFunction
 ) => {
@@ -84,7 +85,7 @@ export const loginUser = async (
 
   if (!isPasswordMatch)
     throw new CustomError("Username or Password Incorrect", 401);
-  const payload:any = {userName:isExist.userName,email:isExist.email,}
+  const payload:any = {userName:isExist.userName,email:isExist.email,id:isExist._id}
   const options = {expiresIn:pathVariable.JWT_EXPIRE_TIME}
   var token = jwt.sign(payload , pathVariable.JWT_SECRET ,options as any);
   const formatedResponse =   getFormatedResponse({

@@ -7,6 +7,7 @@ import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./swagger";
 import allRoutes from "./routes";
 import globalErrorHandler from "./middleware/golobalErrorHandler";
+import { isAuthenticatedUser } from "./middleware/auth";
 const app = express();
 
 //middleware
@@ -15,7 +16,7 @@ app.use(express.urlencoded({ extended: true, limit: "10kb" }));
 
 // routes
 // Swagger route
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.use("/api-docs",isAuthenticatedUser ,swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use("/api", allRoutes);
 
 // Middleware to handle errors

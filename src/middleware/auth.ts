@@ -1,40 +1,58 @@
-// const jwt = require("jsonwebtoken");
-// const User = require("../models/users");
-// const catchAsyncErrors = require("../middlewares/catchAsyncErrors");
-// const ErrorHandler = require("../utils/errorHandler");
+import jwt, { JwtPayload } from 'jsonwebtoken'
+import UserModel from '../model/user';
+import catchAsyncError from './catchAsyncError';
+
+import { NextFunction, Request, Response } from 'express';
+import CustomError from './customError';
+import pathVariable from '../config/pathVariables';
+import { ExtendedRequest } from '../types/express/request';
 
 // Check if the user is authenticated or not
-// exports.isAuthenticatedUser = catchAsyncErrors(async (req, res, next) => {
-//   let token;
+export const isAuthenticatedUser = catchAsyncError(async (req:ExtendedRequest, res:Response, next:NextFunction) => {
+  let token;
+  let path = req.path;
 
-//   if (
-//     req.headers.authorization &&
-//     req.headers.authorization.startsWith("Bearer")
-//   ) {
-//     token = req.headers.authorization.split(" ")[1];
-//   }
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith("Bearer")
+  ) {
+    token = req.headers.authorization.split(" ")[1];
+  }
 
-//   if (!token) {
-//     return next(new ErrorHandler("Login first to access this resource.", 401));
-//   }
+  if(path != '/api-docs' && !token){
+    return res.redirect(302,'/api-docs/login')
+  }
 
-//   const decoded = jwt.verify(token, process.env.JWT_SECRET);
-//   req.user = await User.findById(decoded.id);
+  if (!token) {
+    return next(new CustomError("Login first to access this resource.", 401));
+  }
 
-//   next();
-// });
+  
+  
+
+  const decoded  = jwt.verify(token, pathVariable.JWT_SECRET);
+  if(typeof decoded === 'object' && decoded !== null){
+    var payload = decoded as JwtPayload
+  }else {
+     if(path != '/api-docs'){
+    return res.redirect(302,'/api-docs/login')}
+    throw new CustomError('Invalid jwt token',401)
+  }
+  
+  const user = await UserModel.findById(payload.id).select('isAdmin userName email profileImage');
+  if(!user){
+    if(path != '/api-docs'){
+    return res.redirect(302,'/api-docs/login')}
+    throw new CustomError('User Not Found',404);
+  } 
+  req.user  = user;
+  next();
+});
 
 // handling users roles
-// exports.authorizeRoles = (...roles) => {
-//   return (req, res, next) => {
-//     if (!roles.includes(req.user.role)) {
-//       return next(
-//         new ErrorHandler(
-//           `Role(${req.user.role}) is not allowed to access this resource.`,
-//           403
-//         )
-//       );
-//     }
-//     next();
-//   };
-// };
+export const authorize =  catchAsyncError(async (req:ExtendedRequest, res:Response, next:NextFunction) => {
+    if(req.user?.isAdmin) return next();
+     if(req.path != '/api-docs'){
+    return res.redirect(302,'/api-docs/login')}
+    throw new CustomError('Not Authorize To Access The Information',401)    
+})
