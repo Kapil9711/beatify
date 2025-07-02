@@ -1,27 +1,12 @@
 const loginForm = document.getElementById("loginForm");
 
 const token = localStorage.getItem("token") || "";
-
-const handleLoginCheck = async () => {
-  const domain = window.location.origin;
-  const url = `${domain}/api-docs`;
-  try {
-    const { data } = await axios.get(url, {
-      headers: {
-        authorization: `Bearer ${token}`,
-      },
-    });
-
-    // document.body.innerHTML = data;
-    window.location.href = "/api-docs";
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-// if (token) {
-//   handleLoginCheck();
-// }
+const allCookies = document.cookie;
+const cookies = {};
+document.cookie.split(";").forEach((cookie) => {
+  const [name, value] = cookie.trim().split("=");
+  cookies[name] = decodeURIComponent(value);
+});
 
 const hanldeSubmit = async (e) => {
   e.preventDefault();
@@ -30,11 +15,10 @@ const hanldeSubmit = async (e) => {
     const domain = window.location.origin;
     const url = `${domain}/api/v1/user/login`;
     try {
-      const { data } = await axios.post(url, {
+      await axios.post(url, {
         email: email.value,
         password: password?.value,
       });
-      localStorage.setItem("token", data.token);
       window.location.href = "/api-docs";
     } catch (error) {
       const { response } = error;

@@ -101,9 +101,14 @@ export const loginUser = async (
       profileImage: isExist.profileImage,
     },
   });
-  await UserModel.findByIdAndUpdate(isExist._id, {
-    $set: { token: token },
-  });
 
-  return res.status(200).json({ ...formatedResponse, token });
+  return res
+    .status(200)
+    .cookie("token", token, {
+      httpOnly: false, // Prevent XSS attacks
+      // secure: process.env.NODE_ENV === "production", // HTTPS only in production
+      // sameSite: "strict", // CSRF protection
+      maxAge: 24 * 60 * 60 * 1000, // 1 day expiry (in milliseconds)
+    })
+    .json({ ...formatedResponse, token });
 };

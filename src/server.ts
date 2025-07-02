@@ -6,6 +6,7 @@ import colors from "colors/safe";
 import allRoutes from "./routes";
 import globalErrorHandler from "./middleware/golobalErrorHandler";
 import path from "path";
+import cookieParser from "cookie-parser";
 const app = express();
 
 // serve static file from public
@@ -17,6 +18,7 @@ app.set("views", path.join(__dirname, "views"));
 //middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true, limit: "10kb" }));
+app.use(cookieParser());
 
 app.use("/", allRoutes);
 

@@ -21,6 +21,14 @@ export const isAuthenticatedUser = catchAsyncError(
     }
 
     if (
+      (req.originalUrl == "/api-docs/login" ||
+        req.originalUrl == "/api-docs/login/") &&
+      !token
+    ) {
+      return next();
+    }
+
+    if (
       (req.originalUrl == "/api-docs" || req.originalUrl == "/api-docs/") &&
       !token
     ) {
@@ -38,9 +46,16 @@ export const isAuthenticatedUser = catchAsyncError(
     if (typeof decoded === "object" && decoded !== null) {
       var payload = decoded as JwtPayload;
     } else {
+      if (
+        req.originalUrl == "/api-docs/login" ||
+        req.originalUrl == "/api-docs/login/"
+      ) {
+        return next();
+      }
       if (req.originalUrl == "/api-docs" || req.originalUrl == "/api-docs/") {
         return res.redirect(302, "/api-docs/login");
       }
+
       throw new CustomError("Invalid jwt token", 401);
     }
 
@@ -48,10 +63,22 @@ export const isAuthenticatedUser = catchAsyncError(
       "isAdmin userName email profileImage"
     );
     if (!user) {
+      if (
+        req.originalUrl == "/api-docs/login" ||
+        req.originalUrl == "/api-docs/login/"
+      ) {
+        return next();
+      }
       if (req.originalUrl == "/api-docs" || req.originalUrl == "/api-docs/") {
         return res.redirect(302, "/api-docs/login");
       }
       throw new CustomError("User Not Found", 404);
+    }
+    if (
+      req.originalUrl == "/api-docs/login" ||
+      req.originalUrl == "/api-docs/login/"
+    ) {
+      return res.redirect("/api-docs");
     }
     req.user = user;
     next();
@@ -61,6 +88,22 @@ export const isAuthenticatedUser = catchAsyncError(
 // handling users roles
 export const authorize = catchAsyncError(
   async (req: ExtendedRequest, res: Response, next: NextFunction) => {
+    let token;
+
+    if (
+      req.headers.authorization &&
+      req.headers.authorization.startsWith("Bearer")
+    ) {
+      token = req.headers.authorization.split(" ")[1];
+    }
+
+    if (
+      (req.originalUrl == "/api-docs/login" ||
+        req.originalUrl == "/api-docs/login/") &&
+      !token
+    ) {
+      return next();
+    }
     if (req.user?.isAdmin) return next();
     if (req.originalUrl == "/api-docs" || req.originalUrl == "/api-docs/") {
       return res.redirect(302, "/api-docs/login");

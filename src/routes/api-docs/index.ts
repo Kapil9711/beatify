@@ -8,6 +8,9 @@ import apiDocsHandler from "../../middleware/apiDocsHandler";
 const router = Router();
 
 router.route("/login").get(
+  apiDocsHandler,
+  isAuthenticatedUser,
+  authorize,
   catchAsyncError(
     async (req: ExtendedRequest, res: Response, next: NextFunction) => {
       res.render("login");
