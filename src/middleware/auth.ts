@@ -30,8 +30,11 @@ export const isAuthenticatedUser = catchAsyncError(
     if (!token) {
       return next(new CustomError("Login first to access this resource.", 401));
     }
+    let decoded;
+    try {
+      decoded = jwt.verify(token, pathVariable.JWT_SECRET);
+    } catch (error) {}
 
-    const decoded = jwt.verify(token, pathVariable.JWT_SECRET);
     if (typeof decoded === "object" && decoded !== null) {
       var payload = decoded as JwtPayload;
     } else {

@@ -8,17 +8,15 @@ import globalErrorHandler from "./middleware/golobalErrorHandler";
 import path from "path";
 const app = express();
 
-
 // serve static file from public
-app.use(express.static('public'));
+app.use(express.static("public"));
 // Set the view engine to EJS
-app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views'));
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
 
 //middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true, limit: "10kb" }));
-
 
 app.use("/", allRoutes);
 

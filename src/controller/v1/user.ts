@@ -4,7 +4,7 @@ import getFormatedResponse from "../../utlis/getFormatedResponse";
 import { UserInput, UserLoginInput } from "../../types/responseBodyTypes";
 import CustomError from "../../middleware/customError";
 import bcypt from "bcrypt";
-import jwt from 'jsonwebtoken'
+import jwt from "jsonwebtoken";
 import pathVariable from "../../config/pathVariables";
 import { ExtendedRequest } from "../../types/express/request";
 
@@ -85,18 +85,25 @@ export const loginUser = async (
 
   if (!isPasswordMatch)
     throw new CustomError("Username or Password Incorrect", 401);
-  const payload:any = {userName:isExist.userName,email:isExist.email,id:isExist._id}
-  const options = {expiresIn:pathVariable.JWT_EXPIRE_TIME}
-  var token = jwt.sign(payload , pathVariable.JWT_SECRET ,options as any);
-  const formatedResponse =   getFormatedResponse({
-      message: "Login Successfull",
-      isSuccess: true,
-      data: {
-        userName: isExist.userName,
-        email: isExist.email,
-        profileImage: isExist.profileImage,
-      }
-    })
-  return res.status(200).json(
-       {...formatedResponse,token});
+  const payload: any = {
+    userName: isExist.userName,
+    email: isExist.email,
+    id: isExist._id,
+  };
+  const options = { expiresIn: pathVariable.JWT_EXPIRE_TIME };
+  var token = jwt.sign(payload, pathVariable.JWT_SECRET, options as any);
+  const formatedResponse = getFormatedResponse({
+    message: "Login Successfull",
+    isSuccess: true,
+    data: {
+      userName: isExist.userName,
+      email: isExist.email,
+      profileImage: isExist.profileImage,
+    },
+  });
+  await UserModel.findByIdAndUpdate(isExist._id, {
+    $set: { token: token },
+  });
+
+  return res.status(200).json({ ...formatedResponse, token });
 };

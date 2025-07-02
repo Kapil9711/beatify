@@ -4,22 +4,24 @@ import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "../../swagger";
 import catchAsyncError from "../../middleware/catchAsyncError";
 import { ExtendedRequest } from "../../types/express/request";
+import apiDocsHandler from "../../middleware/apiDocsHandler";
 const router = Router();
 
-router
-  .route("/")
-  .get(
-    isAuthenticatedUser,
-    authorize,
-    swaggerUi.serve,
-    swaggerUi.setup(swaggerSpec)
-  );
 router.route("/login").get(
   catchAsyncError(
     async (req: ExtendedRequest, res: Response, next: NextFunction) => {
       res.render("login");
     }
   )
+);
+
+router.use(
+  "/",
+  apiDocsHandler,
+  isAuthenticatedUser,
+  authorize,
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerSpec)
 );
 
 export default router;

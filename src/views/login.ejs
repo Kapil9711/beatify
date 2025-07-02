@@ -5,15 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login Page</title>
     <link rel="stylesheet" href="/css/login.css" />
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script defer src="/js/login.js"></script>
   </head>
   <body>
     <div class="box">
       <span class="borderLine"></span>
-      <form action="/login" method="POST">
+      <form id="loginForm">
         <h2>Sign in</h2>
         <div class="inputBox">
-          <input type="text" name="username" required />
-          <span>Username</span>
+          <input type="text" name="email" required />
+          <span>Email</span>
           <i></i>
         </div>
         <div class="inputBox">
@@ -22,8 +24,10 @@
           <i></i>
         </div>
         <div class="links">
-          <a href="/forgot-password">Forgot Password</a>
-          <a href="/register">Signup</a>
+          <!-- <a href="/forgot-password">Forgot Password</a> -->
+          <!-- <a href="/register">Signup</a> -->
+          <a href=""></a>
+          <a href=""></a>
         </div>
         <input type="submit" id="submit" value="Login" />
       </form>

@@ -5,4 +5,5 @@ export interface IUser extends Document {
   password: string;
   profileImage?: string;
   isAdmin?: boolean;
+  token?: string;
 }
