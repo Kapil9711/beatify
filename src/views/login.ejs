@@ -1,14 +1,32 @@
 <!DOCTYPE html>
-<html>
-<head>
-  <title>Login</title>
-</head>
-<body>
-  <h2>Login</h2>
-  <form method="POST" action="/api-docs/login">
-    <label>Email: <input type="email" name="email" /></label><br />
-    <label>Password: <input type="password" name="password" /></label><br />
-    <button type="submit">Login</button>
-  </form>
-</body>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login Page</title>
+    <link rel="stylesheet" href="/css/login.css" />
+  </head>
+  <body>
+    <div class="box">
+      <span class="borderLine"></span>
+      <form action="/login" method="POST">
+        <h2>Sign in</h2>
+        <div class="inputBox">
+          <input type="text" name="username" required />
+          <span>Username</span>
+          <i></i>
+        </div>
+        <div class="inputBox">
+          <input type="password" name="password" required />
+          <span>Password</span>
+          <i></i>
+        </div>
+        <div class="links">
+          <a href="/forgot-password">Forgot Password</a>
+          <a href="/register">Signup</a>
+        </div>
+        <input type="submit" id="submit" value="Login" />
+      </form>
+    </div>
+  </body>
 </html>
