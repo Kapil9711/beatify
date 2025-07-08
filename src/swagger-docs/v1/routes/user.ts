@@ -1,6 +1,6 @@
 /**
  * @swagger
- * /api/v1/user:
+ * /api/v1/user/all:
  *   get:
  *     summary: Get all users
  *     description: Returns a list of all users
@@ -182,4 +182,145 @@
  *                 message:
  *                   type: string
  *                   example: Username or Password Incorrect
+ */
+
+/**
+ * @swagger
+ * /api/v1/user/{userId}:
+ *   post:
+ *     summary: Get user details by ID
+ *     tags:
+ *       - User
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           example: 507f1f77bcf86cd799439011
+ *         description: MongoDB ObjectId of the user
+ *     responses:
+ *       200:
+ *         description: User details retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: User Found Successfully
+ *                 isSuccess:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     userName:
+ *                       type: string
+ *                       example: johndoe
+ *                     email:
+ *                       type: string
+ *                       example: user@example.com
+ *                     profileImage:
+ *                       type: string
+ *                       example: https://cdn.example.com/profile.jpg
+ *                     id:
+ *                       type: string
+ *                       example: 507f1f77bcf86cd799439011
+ *       400:
+ *         description: Invalid user ID or user not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Invalid User Id or User Not Found
+ *                 isSuccess:
+ *                   type: boolean
+ *                   example: false
+ *       401:
+ *         description: Unauthorized access
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Unauthorized access
+ *                 isSuccess:
+ *                   type: boolean
+ *                   example: false
+ */
+
+/**
+ * @swagger
+ * /api/v1/user:
+ *   get:
+ *     summary: Get current authenticated user details
+ *     description: Returns the details of the currently logged-in user
+ *     tags:
+ *       - User
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: User details retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: User Found Successfully
+ *                 isSuccess:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     userName:
+ *                       type: string
+ *                       example: johndoe
+ *                     email:
+ *                       type: string
+ *                       example: user@example.com
+ *                     profileImage:
+ *                       type: string
+ *                       example: https://cdn.example.com/profile.jpg
+ *                     id:
+ *                       type: string
+ *                       example: 507f1f77bcf86cd799439011
+ *       400:
+ *         description: User not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: User Not Found
+ *                 isSuccess:
+ *                   type: boolean
+ *                   example: false
+ *       401:
+ *         description: Unauthorized access
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Unauthorized access
+ *                 isSuccess:
+ *                   type: boolean
+ *                   example: false
  */

@@ -7,6 +7,7 @@ import bcypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import pathVariable from "../../config/pathVariables";
 import { ExtendedRequest } from "../../types/express/request";
+import { isValidObjectId } from "mongoose";
 
 //getAllUser => /api/v1/user
 export const getAllUser = async (
@@ -111,4 +112,56 @@ export const loginUser = async (
       maxAge: 24 * 60 * 60 * 1000, // 1 day expiry (in milliseconds)
     })
     .json({ ...formatedResponse, token });
+};
+
+//getUserById => /api/v1/user/:userId
+export const getUserById = async (
+  req: ExtendedRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  const { userId } = req.params;
+  if (!isValidObjectId(userId)) {
+    throw new CustomError("Invalid User Id", 400);
+  }
+  const isExist = await UserModel.findById(userId)
+    .select("userName email profileImage")
+    .lean();
+  if (!isExist) throw new CustomError("User Not Found", 400);
+  const payload: any = {
+    userName: isExist.userName,
+    email: isExist.email,
+    profileImage: isExist.profileImage,
+    id: isExist._id,
+  };
+  return res.status(200).json(
+    getFormatedResponse({
+      isSuccess: true,
+      message: "User Found Successfully",
+      data: payload,
+    })
+  );
+};
+
+//getSingleUser => /api/v1/user
+export const getUser = async (
+  req: ExtendedRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  const isExist = req.user;
+  if (!isExist) throw new CustomError("User Not Found", 400);
+  const payload: any = {
+    userName: isExist.userName,
+    email: isExist.email,
+    profileImage: isExist.profileImage,
+    id: isExist._id,
+  };
+  return res.status(200).json(
+    getFormatedResponse({
+      isSuccess: true,
+      message: "User Found Successfully",
+      data: payload,
+    })
+  );
 };

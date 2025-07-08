@@ -10,12 +10,19 @@ import {
   checkUserNameAlreadyTaken,
   createUser,
   getAllUser,
+  getUser,
+  getUserById,
   loginUser,
 } from "../../controller/v1/user";
 import { authorize, isAuthenticatedUser } from "../../middleware/auth";
 const router = Router();
 
-router.route("/").get(isAuthenticatedUser,authorize,catchAsyncError(getAllUser));
+router.route("/").get(isAuthenticatedUser, catchAsyncError(getUser));
+
+router
+  .route("/all")
+  .get(isAuthenticatedUser, authorize, catchAsyncError(getAllUser));
+
 router.route("/").post(validate(userSchema), catchAsyncError(createUser));
 router
   .route("/is-username-taken")
@@ -24,5 +31,9 @@ router
 router
   .route("/login")
   .post(validate(loginUserSchema), catchAsyncError(loginUser));
+
+router
+  .route("/:userId")
+  .post(isAuthenticatedUser, catchAsyncError(getUserById));
 
 export default router;
