@@ -7,7 +7,16 @@ import allRoutes from "./routes";
 import globalErrorHandler from "./middleware/golobalErrorHandler";
 import path from "path";
 import cookieParser from "cookie-parser";
+import cors from "cors";
 const app = express();
+
+app.use(
+  cors({
+    origin: "*", // ⚠️ for dev only. Use specific domain in production
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 
 // serve static file from public
 app.use(express.static("public"));

@@ -85,7 +85,7 @@ export const loginUser = async (
   const isPasswordMatch = await bcypt.compare(password, isExist.password);
 
   if (!isPasswordMatch)
-    throw new CustomError("Username or Password Incorrect", 401);
+    throw new CustomError("Username or Password Incorrect", 400);
   const payload: any = {
     userName: isExist.userName,
     email: isExist.email,
