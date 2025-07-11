@@ -59,7 +59,7 @@ export const checkUserNameAlreadyTaken = async (
       })
     );
 
-  res.status(200).json(
+  res.status(400).json(
     getFormatedResponse({
       message: "Username Available",
       isSuccess: false,
