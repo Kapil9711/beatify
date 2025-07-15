@@ -7,3 +7,11 @@ export interface IUser extends Document {
   isAdmin?: boolean;
   token?: string;
 }
+
+export interface IGenres extends Document {
+  name: string;
+  totalSongs: number;
+  songs: any[];
+  playlistIds: string[];
+  isActive: boolean;
+}
