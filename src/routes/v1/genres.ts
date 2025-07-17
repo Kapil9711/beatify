@@ -6,7 +6,7 @@ import {
   getGenresList,
 } from "../../controller/v1/genres";
 import validate from "../../middleware/validation";
-import { genresSchema, genresSongSchema } from "../../types/zodSchema";
+import { genresSchema, genresSongsSchema } from "../../types/zodSchema";
 
 const router = Router();
 
@@ -15,6 +15,6 @@ router.route("/").post(validate(genresSchema), catchAsyncError(createGenres));
 
 router
   .route("/add-remove-song/:genreId")
-  .post(validate(genresSongSchema), catchAsyncError(addRemoveSong));
+  .post(validate(genresSongsSchema), catchAsyncError(addRemoveSong));
 
 export default router;

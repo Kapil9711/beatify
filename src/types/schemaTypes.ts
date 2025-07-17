@@ -7,11 +7,26 @@ export interface IUser extends Document {
   isAdmin?: boolean;
   token?: string;
 }
+export type SongSchema = {
+  id: string;
+  name: string;
+  duration: string;
+  artistImage: string;
+  songImage: string;
+  downloadUrl: {
+    low: string;
+    medium: string;
+    high: string;
+    veryHigh: string;
+  }[];
+  playCount: number;
+  language: string;
+};
 
 export interface IGenres extends Document {
   name: string;
   totalSongs: number;
-  songs: any[];
+  songs: SongSchema;
   playlistIds: string[];
   isActive: boolean;
 }

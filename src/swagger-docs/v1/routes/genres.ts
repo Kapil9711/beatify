@@ -9,38 +9,146 @@
  * @swagger
  * components:
  *   schemas:
+ *     DownloadUrl:
+ *       type: object
+ *       required:
+ *         - low
+ *         - medium
+ *         - high
+ *         - veryHigh
+ *       properties:
+ *         low:
+ *           type: string
+ *           format: uri
+ *           description: Low quality audio URL
+ *           example: "https://cdn.example.com/songs/123/low.mp3"
+ *         medium:
+ *           type: string
+ *           format: uri
+ *           description: Medium quality audio URL
+ *           example: "https://cdn.example.com/songs/123/medium.mp3"
+ *         high:
+ *           type: string
+ *           format: uri
+ *           description: High quality audio URL
+ *           example: "https://cdn.example.com/songs/123/high.mp3"
+ *         veryHigh:
+ *           type: string
+ *           format: uri
+ *           description: Very high quality audio URL
+ *           example: "https://cdn.example.com/songs/123/lossless.flac"
+ *
+ *     Song:
+ *       type: object
+ *       required:
+ *         - id
+ *         - name
+ *         - duration
+ *         - artistImage
+ *         - songImage
+ *         - downloadUrl
+ *         - playCount
+ *         - language
+ *       properties:
+ *         id:
+ *           type: string
+ *           format: uuid
+ *           description: Unique song identifier
+ *           example: "507f1f77bcf86cd799439011"
+ *         name:
+ *           type: string
+ *           description: Song title
+ *           minLength: 1
+ *           maxLength: 100
+ *           example: "Bohemian Rhapsody"
+ *         duration:
+ *           type: string
+ *           pattern: '^\d+:\d{2}$'
+ *           description: Duration in MM:SS format
+ *           example: "5:55"
+ *         artistImage:
+ *           type: string
+ *           format: uri
+ *           description: URL to artist image
+ *           example: "https://cdn.example.com/artists/queen.jpg"
+ *         songImage:
+ *           type: string
+ *           format: uri
+ *           description: URL to song cover art
+ *           example: "https://cdn.example.com/covers/bohemian-rhapsody.jpg"
+ *         downloadUrl:
+ *           type: array
+ *           minItems: 1
+ *           items:
+ *             $ref: '#/components/schemas/DownloadUrl'
+ *           description: Available download quality options
+ *         playCount:
+ *           type: integer
+ *           minimum: 0
+ *           description: Total play counts
+ *           example: 1245678
+ *           default: 0
+ *         language:
+ *           type: string
+ *           minLength: 2
+ *           maxLength: 20
+ *           description: Song language
+ *           example: "English"
+ *
  *     Genre:
  *       type: object
  *       required:
  *         - name
+ *         - songs
  *       properties:
  *         name:
  *           type: string
- *           description: Unique name of the genre
- *           example: "Rock"
+ *           description: Genre name
  *           minLength: 1
  *           maxLength: 50
+ *           example: "Rock"
  *         totalSongs:
  *           type: integer
- *           description: Total number of songs in this genre
- *           example: 42
  *           minimum: 0
+ *           description: Count of songs in this genre
+ *           example: 42
  *           default: 0
  *         songs:
  *           type: array
- *           description: Array of song references
+ *           description: Songs in this genre
  *           items:
- *             type: object
+ *             $ref: '#/components/schemas/Song'
  *         playlistIds:
  *           type: array
- *           description: Array of playlist IDs
+ *           description: Playlists containing this genre
  *           items:
  *             type: string
  *             format: uuid
+ *             example: "507f1f77bcf86cd799439011"
  *         isActive:
  *           type: boolean
- *           description: Whether the genre is active
+ *           description: Active status
  *           default: true
+ *           example: true
+ *       example:
+ *         name: "Rock"
+ *         totalSongs: 42
+ *         songs:
+ *           - id: "507f1f77bcf86cd799439011"
+ *             name: "Bohemian Rhapsody"
+ *             duration: "5:55"
+ *             artistImage: "https://cdn.example.com/artists/queen.jpg"
+ *             songImage: "https://cdn.example.com/covers/bohemian-rhapsody.jpg"
+ *             downloadUrl:
+ *               - low: "https://cdn.example.com/songs/123/low.mp3"
+ *                 medium: "https://cdn.example.com/songs/123/medium.mp3"
+ *                 high: "https://cdn.example.com/songs/123/high.mp3"
+ *                 veryHigh: "https://cdn.example.com/songs/123/lossless.flac"
+ *             playCount: 1245678
+ *             language: "English"
+ *         playlistIds: ["507f1f77bcf86cd799439011", "507f1f77bcf86cd799439012"]
+ *         isActive: true
+ *
  *     ErrorResponse:
  *       type: object
  *       properties:
@@ -224,9 +332,11 @@
  *         songs:
  *           type: array
  *           minItems: 1
- *           items:
- *             $ref: '#/components/schemas/SongReference'
  *           description: Array of songs to add or remove
+ *           items:
+ *             oneOf:
+ *               - $ref: '#/components/schemas/Song'  # For add operations
+ *               - $ref: '#/components/schemas/SongReference'  # For remove operations
  *
  *     SongReference:
  *       type: object
@@ -235,12 +345,88 @@
  *       properties:
  *         id:
  *           type: string
+ *           format: uuid
  *           description: Unique identifier of the song
- *           example: "song123"
+ *           example: "611f1f77bcf86cd799439022"
  *         title:
  *           type: string
  *           description: Title of the song (optional for removal)
- *           example: "My Song Title"
+ *           example: "Bohemian Rhapsody"
+ *           minLength: 1
+ *           maxLength: 100
+ *
+ *     Song:
+ *       type: object
+ *       required:
+ *         - id
+ *         - name
+ *         - duration
+ *         - artistImage
+ *         - songImage
+ *         - downloadUrl
+ *         - playCount
+ *         - language
+ *       properties:
+ *         id:
+ *           type: string
+ *           format: uuid
+ *           example: "611f1f77bcf86cd799439022"
+ *         name:
+ *           type: string
+ *           example: "Bohemian Rhapsody"
+ *           minLength: 1
+ *           maxLength: 100
+ *         duration:
+ *           type: string
+ *           pattern: '^\d+:\d{2}$'
+ *           example: "5:55"
+ *         artistImage:
+ *           type: string
+ *           format: uri
+ *           example: "https://cdn.example.com/artists/queen.jpg"
+ *         songImage:
+ *           type: string
+ *           format: uri
+ *           example: "https://cdn.example.com/covers/bohemian-rhapsody.jpg"
+ *         downloadUrl:
+ *           type: array
+ *           minItems: 1
+ *           items:
+ *             $ref: '#/components/schemas/DownloadUrl'
+ *         playCount:
+ *           type: integer
+ *           minimum: 0
+ *           example: 1245678
+ *         language:
+ *           type: string
+ *           minLength: 2
+ *           maxLength: 20
+ *           example: "English"
+ *
+ *     DownloadUrl:
+ *       type: object
+ *       required:
+ *         - low
+ *         - medium
+ *         - high
+ *         - veryHigh
+ *       properties:
+ *         low:
+ *           type: string
+ *           format: uri
+ *           example: "https://cdn.example.com/songs/123/low.mp3"
+ *         medium:
+ *           type: string
+ *           format: uri
+ *           example: "https://cdn.example.com/songs/123/medium.mp3"
+ *         high:
+ *           type: string
+ *           format: uri
+ *           example: "https://cdn.example.com/songs/123/high.mp3"
+ *         veryHigh:
+ *           type: string
+ *           format: uri
+ *           example: "https://cdn.example.com/songs/123/lossless.flac"
  *
  *     FormattedResponse:
  *       type: object
@@ -252,7 +438,19 @@
  *           $ref: '#/components/schemas/Genre'
  *         message:
  *           type: string
- *           example: "Songs Added Successfully"
+ *           example: "Songs added successfully"
+ *         metadata:
+ *           type: object
+ *           properties:
+ *             addedCount:
+ *               type: integer
+ *               example: 3
+ *             removedCount:
+ *               type: integer
+ *               example: 0
+ *             duplicatesSkipped:
+ *               type: integer
+ *               example: 2
  *
  *     Genre:
  *       type: object
@@ -261,13 +459,25 @@
  *           type: string
  *           format: ObjectId
  *           example: "507f1f77bcf86cd799439011"
+ *         name:
+ *           type: string
+ *           example: "Rock"
  *         songs:
  *           type: array
  *           items:
- *             $ref: '#/components/schemas/SongReference'
+ *             $ref: '#/components/schemas/Song'
  *         totalSongs:
- *           type: number
- *           example: 5
+ *           type: integer
+ *           example: 15
+ *         playlistIds:
+ *           type: array
+ *           items:
+ *             type: string
+ *             format: ObjectId
+ *           example: ["507f1f77bcf86cd799439012", "507f1f77bcf86cd799439013"]
+ *         isActive:
+ *           type: boolean
+ *           example: true
  *
  *     ErrorResponse:
  *       type: object
@@ -277,8 +487,19 @@
  *           example: false
  *         message:
  *           type: string
- *           example: "Genre Not Found"
+ *           example: "Genre not found"
  *         error:
  *           type: string
- *           example: "Detailed error message"
+ *           example: "NotFoundError"
+ *         validationErrors:
+ *           type: array
+ *           items:
+ *             type: object
+ *             properties:
+ *               field:
+ *                 type: string
+ *                 example: "duration"
+ *               message:
+ *                 type: string
+ *                 example: "Must match format MM:SS"
  */

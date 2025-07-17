@@ -7,9 +7,19 @@ import { isValidObjectId } from "mongoose";
 
 //getGenresList => /api/v1/genres/list
 export const getGenresList = async (req: ExtendedRequest, res: Response) => {
-  const genres = await GenresModel.find({ isActive: true }).select(
-    "name totalSongs"
-  );
+  const { type = "more" } = req.query;
+
+  let genres = [];
+  if (type == "more") {
+    genres = await GenresModel.find({ isActive: true });
+  }
+
+  if (type == "less") {
+    genres = await GenresModel.find({ isActive: true }).select(
+      "name totalSongs"
+    );
+  }
+
   res.status(200).json(
     getFormatedResponse({
       isSuccess: true,

@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { IGenres, IUser } from "../types/schemaTypes";
+import { IGenres } from "../types/schemaTypes";
 
 const genresSchema = new mongoose.Schema<IGenres>({
   name: {
@@ -13,7 +13,7 @@ const genresSchema = new mongoose.Schema<IGenres>({
     default: 0,
   },
   songs: {
-    type: [{}],
+    type: [Object],
   },
   playlistIds: {
     type: [String],
