@@ -41,13 +41,14 @@ const DownloadUrlSchema = z.object({
   veryHigh: z.string().url(),
 });
 
-const SongSchema = z.object({
+export const SongSchema = z.object({
   id: z.string(),
   name: z.string().min(1),
   duration: z.string(), // e.g. "3:45"
   artistImage: z.string().url(),
+  artistName: z.string().min(1),
   songImage: z.string().url(),
-  downloadUrl: z.array(DownloadUrlSchema).min(1),
+  downloadUrl: DownloadUrlSchema,
   playCount: z.number().int().min(0),
   language: z.string().min(1),
 });
@@ -63,4 +64,10 @@ export const genresSchema = z.object({
 export const genresSongsSchema = z.object({
   type: z.enum(["add", "remove"]),
   songs: z.array(SongSchema),
+});
+
+export const seedGenreSongSchema = z.object({
+  name: z.string().min(1),
+  limit: z.number().optional(),
+  skip: z.number().optional(),
 });

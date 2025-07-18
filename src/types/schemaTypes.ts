@@ -12,13 +12,14 @@ export type SongSchema = {
   name: string;
   duration: string;
   artistImage: string;
+  artistName: string;
   songImage: string;
   downloadUrl: {
     low: string;
     medium: string;
     high: string;
     veryHigh: string;
-  }[];
+  };
   playCount: number;
   language: string;
 };

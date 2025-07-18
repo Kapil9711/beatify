@@ -1,4 +1,7 @@
-export const apiBaseUrl = process.env.BASE_API_JIO;
+import axios from "axios";
+import pathVariable from "../config/pathVariables";
+
+export const apiBaseUrl = pathVariable.BASE_API_JIO;
 
 const songs = {
   searchSong: "/search/songs",
@@ -8,7 +11,7 @@ const songs = {
 
 const playlist = {
   searchPlaylist: "/search/playlists",
-  searchPlaylistById: (id: string) => `/playlists/${id}`,
+  searchPlaylistById: `/playlists`,
 };
 
 const album = {
@@ -24,8 +27,15 @@ const artist = {
 };
 
 export const micorServiceEndpoint = {
-  ...songs,
-  ...album,
-  ...playlist,
-  ...artist,
+  songs,
+  album,
+  playlist,
+  artist,
 };
+export const api = axios.create({
+  baseURL: apiBaseUrl, // Your base URL
+  headers: {
+    "Content-Type": "application/json",
+    // Add any default headers here
+  },
+});

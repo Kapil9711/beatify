@@ -4,6 +4,13 @@ import GenresModel from "../../model/genres";
 import getFormatedResponse from "../../utlis/getFormatedResponse";
 import CustomError from "../../middleware/customError";
 import { isValidObjectId } from "mongoose";
+import axios from "axios";
+import {
+  api,
+  apiBaseUrl,
+  micorServiceEndpoint,
+} from "../../microServices/apiEndpoint";
+import { SongSchema } from "../../types/zodSchema";
 
 //getGenresList => /api/v1/genres/list
 export const getGenresList = async (req: ExtendedRequest, res: Response) => {
@@ -31,7 +38,8 @@ export const getGenresList = async (req: ExtendedRequest, res: Response) => {
 
 //createGenres=>/api/v1/genres
 export const createGenres = async (req: ExtendedRequest, res: Response) => {
-  const { songs, name } = req.body;
+  let { songs, name } = req.body;
+  name = String(name).toLowerCase();
   const isExist = await GenresModel.findOne({ name });
   if (isExist) throw new CustomError("Genres already exists", 400);
   const genres = await GenresModel.create({
@@ -102,4 +110,137 @@ export const addRemoveSong = async (req: ExtendedRequest, res: Response) => {
           : "Songs Removed Successfully ",
     })
   );
+};
+
+export const seedGenreSong = async (req: ExtendedRequest, res: Response) => {
+  let { name } = req.body;
+  name = String(name).toLowerCase();
+  let language = ["hindi", "punjabi"];
+
+  const allPlaylistId: string[] = [];
+
+  for (let item of language) {
+    let query = name + " " + item;
+    try {
+      const { data } = await api.get(
+        micorServiceEndpoint.playlist.searchPlaylist + `?query=${query}`
+      );
+      if (data.success) {
+        const playlists = data?.data?.results;
+        if (Array.isArray(playlists)) {
+          for (let playlist of playlists) {
+            let { id, name: playlistName } = playlist;
+            if (id && playlistName) {
+              if (playlistName.toLowerCase().includes(name)) {
+                allPlaylistId.push(id);
+              }
+            }
+          }
+        }
+      }
+    } catch (error) {}
+  }
+
+  let songsFromPlaylist: any = [];
+  const downloadUrlOjb: any = {
+    "320kbps": "veryHigh",
+    "160kbps": "high",
+    "96kbps": "medium",
+    "48kbps": "low",
+  };
+  for (let id of allPlaylistId) {
+    try {
+      const { data } = await api.get(
+        micorServiceEndpoint.playlist.searchPlaylistById + `?id=${id}`
+      );
+      if (data.success) {
+        const songs = data?.data?.songs;
+        if (Array.isArray(songs)) {
+          for (let song of songs) {
+            const primary = song?.artists?.primary;
+            const artistName = primary?.reduce(
+              (acc: string, curr: any) => acc + curr?.name + ", ",
+              ""
+            );
+            const artistImage = primary[0]?.image[2]?.url;
+            let downloadUrl: any = {};
+
+            for (let value of song.downloadUrl) {
+              if (downloadUrlOjb[value.quality]) {
+                downloadUrl[downloadUrlOjb[value.quality]] = value.url;
+              }
+            }
+
+            const formatedSongObj = {
+              name: song?.name,
+              id: song?.id,
+              playCount: song?.playCount,
+              language: song?.language,
+              duration: String(song?.duration),
+              artistImage: artistImage,
+              artistName: artistName,
+              songImage: song?.image[2]?.url,
+              downloadUrl: downloadUrl,
+            };
+            await SongSchema.parse(formatedSongObj);
+            songsFromPlaylist.push(formatedSongObj);
+          }
+        }
+      }
+    } catch (error) {}
+  }
+
+  console.log("Total songs from Playlist", songsFromPlaylist.length);
+
+  let isExist: any = null;
+  isExist = await GenresModel.findOne({ name: name }).select("name");
+  if (!isExist) {
+    console.log("Genre not Exist, creating new Genre");
+    isExist = await GenresModel.create({ name });
+  }
+
+  const genreList = await GenresModel.find({})
+    .select("name -_id songs.id")
+    .lean();
+
+  if (genreList.length === 0)
+    throw new CustomError("No genre found in DB", 400);
+
+  let formatedGenreData: any = {};
+
+  for (let genre of genreList) {
+    const { name, songs }: any = genre;
+    for (let song of songs) {
+      const { id } = song;
+      if (formatedGenreData[name]) {
+        formatedGenreData[name][id] = true;
+      } else {
+        formatedGenreData[name] = { [id]: true };
+      }
+    }
+  }
+
+  let songsAfterRemoveDubplicate: any = [];
+  if (Object.keys(formatedGenreData).length > 0) {
+    for (let song of songsFromPlaylist) {
+      const { id } = song;
+      let flag = false;
+      if (id) {
+        for (let key in formatedGenreData) {
+          const value = formatedGenreData[key];
+          if (value[id]) flag = true;
+        }
+      }
+      if (!flag) {
+        songsAfterRemoveDubplicate.push(song);
+      }
+    }
+  } else {
+    songsAfterRemoveDubplicate = songsFromPlaylist;
+  }
+
+  req.params = { genreId: isExist.id as string };
+  req.body = { type: "add", songs: songsAfterRemoveDubplicate };
+  console.log("filtered Songs Length", songsAfterRemoveDubplicate.length);
+  await addRemoveSong(req, res);
 };
