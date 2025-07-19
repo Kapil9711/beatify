@@ -61,6 +61,14 @@ export const PlaylistSchema = z.object({
   language: z.string().min(1),
 });
 
+export const AlbumSchema = z.object({
+  id: z.string(),
+  name: z.string().min(1),
+  albumImage: z.string().url(),
+  artistName: z.string().min(1),
+  language: z.string().min(1),
+});
+
 export const genresSchema = z.object({
   name: z.string().min(1),
   totalSongs: z.number().int().min(0),

@@ -1,4 +1,4 @@
-import { PlaylistSchema, SongSchema } from "../types/zodSchema";
+import { AlbumSchema, PlaylistSchema, SongSchema } from "../types/zodSchema";
 
 const downloadUrlOjb: any = {
   "320kbps": "veryHigh",
@@ -61,6 +61,29 @@ export const getFormatedPlaylist = async (
 
         await PlaylistSchema.parse(formatedPlaylistObj);
         arrayToPush.push(formatedPlaylistObj);
+      } catch (error) {}
+    }
+  }
+};
+
+export const getFormatedAlbum = async (albums: any[], arrayToPush: any[]) => {
+  if (Array.isArray(albums)) {
+    for (let album of albums) {
+      try {
+        const primary = album?.artists?.primary;
+        const artistName = primary?.reduce(
+          (acc: string, curr: any) => acc + curr?.name + ", ",
+          ""
+        );
+        const formatedAlbumObj = {
+          name: album?.name,
+          id: album?.id,
+          language: album?.language,
+          albumImage: album?.image[2]?.url,
+          artistName,
+        };
+        await AlbumSchema.parse(formatedAlbumObj);
+        arrayToPush.push(formatedAlbumObj);
       } catch (error) {}
     }
   }

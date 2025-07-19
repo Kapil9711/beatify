@@ -16,7 +16,7 @@ const playlist = {
 
 const album = {
   searchAlbum: "/search/albums",
-  searchAlbumById: (id: string) => `/albums/${id}`,
+  searchAlbumById: `/albums`,
 };
 
 const artist = {
