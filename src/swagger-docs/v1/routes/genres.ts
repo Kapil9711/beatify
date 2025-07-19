@@ -503,3 +503,108 @@
  *                 type: string
  *                 example: "Must match format MM:SS"
  */
+
+/**
+ * @swagger
+ * /api/v1/genres/seed-song:
+ *   post:
+ *     tags:
+ *       - Genres
+ *     summary: Seed songs for a specific genre
+ *     description: |
+ *       This endpoint searches for playlists related to the given genre name,
+ *       extracts songs from those playlists, removes duplicates that already exist in other genres,
+ *       and adds the remaining songs to the specified genre.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: The name of the genre to seed songs for
+ *                 example: "pop"
+ *     responses:
+ *       200:
+ *         description: Songs successfully seeded to the genre
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/SuccessResponse'
+ *       400:
+ *         description: Bad request (validation error or no genres found in DB)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *     security:
+ *       - bearerAuth: []
+ *
+ * components:
+ *   schemas:
+ *     SuccessResponse:
+ *       type: object
+ *       properties:
+ *         success:
+ *           type: boolean
+ *           example: true
+ *         message:
+ *           type: string
+ *         data:
+ *           type: object
+ *     ErrorResponse:
+ *       type: object
+ *       properties:
+ *         success:
+ *           type: boolean
+ *           example: false
+ *         message:
+ *           type: string
+ *         error:
+ *           type: object
+ *     Song:
+ *       type: object
+ *       properties:
+ *         name:
+ *           type: string
+ *         id:
+ *           type: string
+ *         playCount:
+ *           type: number
+ *         language:
+ *           type: string
+ *         duration:
+ *           type: string
+ *         artistImage:
+ *           type: string
+ *         artistName:
+ *           type: string
+ *         songImage:
+ *           type: string
+ *         downloadUrl:
+ *           type: object
+ *           properties:
+ *             veryHigh:
+ *               type: string
+ *             high:
+ *               type: string
+ *             medium:
+ *               type: string
+ *             low:
+ *               type: string
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
+ */

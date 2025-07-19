@@ -11,6 +11,7 @@ import {
   micorServiceEndpoint,
 } from "../../microServices/apiEndpoint";
 import { SongSchema } from "../../types/zodSchema";
+import { getFormatedSong } from "../../utlis/songHelper";
 
 //getGenresList => /api/v1/genres/list
 export const getGenresList = async (req: ExtendedRequest, res: Response) => {
@@ -112,6 +113,7 @@ export const addRemoveSong = async (req: ExtendedRequest, res: Response) => {
   );
 };
 
+//seedSong =>/api/v1/genres/seed-song
 export const seedGenreSong = async (req: ExtendedRequest, res: Response) => {
   let { name } = req.body;
   name = String(name).toLowerCase();
@@ -142,12 +144,7 @@ export const seedGenreSong = async (req: ExtendedRequest, res: Response) => {
   }
 
   let songsFromPlaylist: any = [];
-  const downloadUrlOjb: any = {
-    "320kbps": "veryHigh",
-    "160kbps": "high",
-    "96kbps": "medium",
-    "48kbps": "low",
-  };
+
   for (let id of allPlaylistId) {
     try {
       const { data } = await api.get(
@@ -155,43 +152,12 @@ export const seedGenreSong = async (req: ExtendedRequest, res: Response) => {
       );
       if (data.success) {
         const songs = data?.data?.songs;
-        if (Array.isArray(songs)) {
-          for (let song of songs) {
-            const primary = song?.artists?.primary;
-            const artistName = primary?.reduce(
-              (acc: string, curr: any) => acc + curr?.name + ", ",
-              ""
-            );
-            const artistImage = primary[0]?.image[2]?.url;
-            let downloadUrl: any = {};
-
-            for (let value of song.downloadUrl) {
-              if (downloadUrlOjb[value.quality]) {
-                downloadUrl[downloadUrlOjb[value.quality]] = value.url;
-              }
-            }
-
-            const formatedSongObj = {
-              name: song?.name,
-              id: song?.id,
-              playCount: song?.playCount,
-              language: song?.language,
-              duration: String(song?.duration),
-              artistImage: artistImage,
-              artistName: artistName,
-              songImage: song?.image[2]?.url,
-              downloadUrl: downloadUrl,
-            };
-            await SongSchema.parse(formatedSongObj);
-            songsFromPlaylist.push(formatedSongObj);
-          }
-        }
+        await getFormatedSong(songs, songsFromPlaylist);
       }
     } catch (error) {}
   }
 
   console.log("Total songs from Playlist", songsFromPlaylist.length);
-
   let isExist: any = null;
   isExist = await GenresModel.findOne({ name: name }).select("name");
   if (!isExist) {
