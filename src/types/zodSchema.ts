@@ -49,7 +49,7 @@ export const SongSchema = z.object({
   artistName: z.string().min(1),
   songImage: z.string().url(),
   downloadUrl: DownloadUrlSchema,
-  playCount: z.number().int().min(0),
+  playCount: z.number().int().min(0).nullable().default(0),
   language: z.string().min(1),
 });
 
@@ -59,6 +59,13 @@ export const PlaylistSchema = z.object({
   playlistImage: z.string().url(),
   songCount: z.number().int().min(0),
   language: z.string().min(1),
+});
+
+export const ArtistSchema = z.object({
+  id: z.string(),
+  name: z.string().min(1),
+  artistImage: z.string().min(1),
+  languages: z.array(z.string()).nullable().default([]),
 });
 
 export const AlbumSchema = z.object({

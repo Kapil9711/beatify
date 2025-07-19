@@ -32,7 +32,7 @@ export const getSearchedPlaylist = async (
   );
 };
 
-//getSongByPlaylistId =>api/v1/song/:playlistId
+//getSongByPlaylistId =>api/v1/playlist/:playlistId
 export const getPlaylistSongById = async (
   req: ExtendedRequest,
   res: Response

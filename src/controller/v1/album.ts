@@ -28,7 +28,7 @@ export const getSearchedAlbum = async (req: ExtendedRequest, res: Response) => {
   );
 };
 
-//getSongByAlbumId =>api/v1/song/:albumId
+//getSongByAlbumId =>api/v1/album/:albumId
 export const getAlbumSongById = async (req: ExtendedRequest, res: Response) => {
   const { albumId } = req.params;
   if (!albumId) throw new CustomError("Invalid SongId", 400);

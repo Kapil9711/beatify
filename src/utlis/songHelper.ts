@@ -1,4 +1,9 @@
-import { AlbumSchema, PlaylistSchema, SongSchema } from "../types/zodSchema";
+import {
+  AlbumSchema,
+  ArtistSchema,
+  PlaylistSchema,
+  SongSchema,
+} from "../types/zodSchema";
 
 const downloadUrlOjb: any = {
   "320kbps": "veryHigh",
@@ -7,7 +12,7 @@ const downloadUrlOjb: any = {
   "48kbps": "low",
 };
 
-export const getFormatedSong = async (songs: [any], arrayToPush: any[]) => {
+export const getFormatedSong = async (songs: any[], arrayToPush: any[]) => {
   if (Array.isArray(songs)) {
     for (let song of songs) {
       try {
@@ -28,7 +33,7 @@ export const getFormatedSong = async (songs: [any], arrayToPush: any[]) => {
         const formatedSongObj = {
           name: song?.name,
           id: song?.id,
-          playCount: song?.playCount,
+          playCount: song?.playCount ? song?.playCount : 0,
           language: song?.language,
           duration: String(song?.duration),
           artistImage: artistImage,
@@ -84,6 +89,23 @@ export const getFormatedAlbum = async (albums: any[], arrayToPush: any[]) => {
         };
         await AlbumSchema.parse(formatedAlbumObj);
         arrayToPush.push(formatedAlbumObj);
+      } catch (error) {}
+    }
+  }
+};
+
+export const getFormatedArtist = async (artists: any[], arrayToPush: any[]) => {
+  if (Array.isArray(artists)) {
+    for (let artist of artists) {
+      try {
+        const formatedPlaylistObj = {
+          name: artist?.name,
+          id: artist?.id,
+          artistImage: artist?.image[2]?.url,
+          languages: [],
+        };
+        await ArtistSchema.parse(formatedPlaylistObj);
+        arrayToPush.push(formatedPlaylistObj);
       } catch (error) {}
     }
   }
