@@ -125,7 +125,8 @@ export const seedGenreSong = async (req: ExtendedRequest, res: Response) => {
     let query = name + " " + item;
     try {
       const { data } = await api.get(
-        micorServiceEndpoint.playlist.searchPlaylist + `?query=${query}`
+        micorServiceEndpoint.playlist.searchPlaylist +
+          `?query=${query}&limit=10`
       );
       if (data.success) {
         const playlists = data?.data?.results;
@@ -148,7 +149,7 @@ export const seedGenreSong = async (req: ExtendedRequest, res: Response) => {
   for (let id of allPlaylistId) {
     try {
       const { data } = await api.get(
-        micorServiceEndpoint.playlist.searchPlaylistById + `?id=${id}`
+        micorServiceEndpoint.playlist.searchPlaylistById + `?id=${id}&limit=50`
       );
       if (data.success) {
         const songs = data?.data?.songs;
