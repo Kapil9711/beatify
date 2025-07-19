@@ -28,6 +28,11 @@ const userSchema = new mongoose.Schema<IUser>({
     default: false,
     select: false,
   },
+  token: {
+    type: String,
+    default: "",
+    select: false,
+  },
 });
 
 // userSchema.index({ userName: 1 });

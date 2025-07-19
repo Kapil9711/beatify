@@ -3,20 +3,33 @@ import "dotenv/config";
 import ConnectDb from "./db/dbConnection";
 import pathVariable from "./config/pathVariables";
 import colors from "colors/safe";
-import swaggerUi from "swagger-ui-express";
-import { swaggerSpec } from "./swagger";
 import allRoutes from "./routes";
 import globalErrorHandler from "./middleware/golobalErrorHandler";
+import path from "path";
+import cookieParser from "cookie-parser";
+import cors from "cors";
 const app = express();
+
+app.use(
+  cors({
+    origin: "*", // ⚠️ for dev only. Use specific domain in production
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
+
+// serve static file from public
+app.use(express.static("public"));
+// Set the view engine to EJS
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
 
 //middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true, limit: "10kb" }));
+app.use(cookieParser());
 
-// routes
-// Swagger route
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-app.use("/api", allRoutes);
+app.use("/", allRoutes);
 
 // Middleware to handle errors
 app.use(globalErrorHandler);

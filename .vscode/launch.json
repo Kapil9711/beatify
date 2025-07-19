@@ -1,0 +1,20 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Launch Program",
+      "skipFiles": [
+        "<node_internals>/**", // Skip internal Node.js files
+        "${workspaceFolder}/node_modules/**", // Skip all node_modules files in your project
+        "**/node_modules/**" // Explicitly skip node_modules files in any subfolder
+      ],
+      "program": "${workspaceFolder}/app.ts", // Your main TypeScript file
+      "preLaunchTask": "tsc: build - tsconfig.json", // Ensures TypeScript is compiled before running
+      "runtimeArgs": ["--inspect"], // Optional: For debugging with a debugger, use --inspect flag
+      "sourceMaps": true, // Enable source maps for debugging TypeScript
+      "outFiles": ["${workspaceFolder}/dist/**/*.js"] // The compiled JS files after TypeScript transpile
+    }
+  ]
+}

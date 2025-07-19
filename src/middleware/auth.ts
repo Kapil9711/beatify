@@ -1,40 +1,108 @@
-// const jwt = require("jsonwebtoken");
-// const User = require("../models/users");
-// const catchAsyncErrors = require("../middlewares/catchAsyncErrors");
-// const ErrorHandler = require("../utils/errorHandler");
+import jwt, { JwtPayload } from "jsonwebtoken";
+import UserModel from "../model/user";
+import catchAsyncError from "./catchAsyncError";
 
-// Check if the user is authenticated or not
-// exports.isAuthenticatedUser = catchAsyncErrors(async (req, res, next) => {
-//   let token;
+import { NextFunction, Request, Response } from "express";
+import CustomError from "./customError";
+import pathVariable from "../config/pathVariables";
+import { ExtendedRequest } from "../types/express/request";
+import { IUser } from "../types/schemaTypes";
 
-//   if (
-//     req.headers.authorization &&
-//     req.headers.authorization.startsWith("Bearer")
-//   ) {
-//     token = req.headers.authorization.split(" ")[1];
-//   }
+// Check if the user is authenticated
+export const isAuthenticatedUser = catchAsyncError(
+  async (req: ExtendedRequest, res: Response, next: NextFunction) => {
+    // 1. Extract token from Authorization header
+    let token;
+    if (req.headers.authorization?.startsWith("Bearer")) {
+      token = req.headers.authorization.split(" ")[1];
+    }
 
-//   if (!token) {
-//     return next(new ErrorHandler("Login first to access this resource.", 401));
-//   }
+    // 2. Handle API docs login page (allow unauthenticated access)
+    if (isLoginPage(req.originalUrl) && !token) {
+      return next();
+    }
 
-//   const decoded = jwt.verify(token, process.env.JWT_SECRET);
-//   req.user = await User.findById(decoded.id);
+    // 3. Redirect to login if accessing docs without token
+    if (isApiDocsPage(req.originalUrl) && !token) {
+      return redirectToLogin(res);
+    }
 
-//   next();
-// });
+    // 4. Reject if no token found (except login page)
+    if (!token) {
+      throw new CustomError("Login first to access this resource.", 401);
+    }
 
-// handling users roles
-// exports.authorizeRoles = (...roles) => {
-//   return (req, res, next) => {
-//     if (!roles.includes(req.user.role)) {
-//       return next(
-//         new ErrorHandler(
-//           `Role(${req.user.role}) is not allowed to access this resource.`,
-//           403
-//         )
-//       );
-//     }
-//     next();
-//   };
-// };
+    // 5. Verify JWT token
+    let decoded;
+    try {
+      decoded = jwt.verify(token, pathVariable.JWT_SECRET);
+    } catch (error) {
+      if (isLoginPage(req.originalUrl)) return next();
+      if (isApiDocsPage(req.originalUrl)) return redirectToLogin(res);
+      throw new CustomError("Invalid JWT token", 401);
+    }
+
+    // 6. Validate token payload
+    if (!isValidJwtPayload(decoded)) {
+      if (isLoginPage(req.originalUrl)) return next();
+      if (isApiDocsPage(req.originalUrl)) return redirectToLogin(res);
+      throw new CustomError("Invalid JWT token", 401);
+    }
+
+    const payload = decoded as JwtPayload;
+    // 7. Find user in database
+    const user: IUser = await UserModel.findById(payload.id).select(
+      "isAdmin userName email profileImage"
+    );
+
+    if (!user) {
+      if (isLoginPage(req.originalUrl)) return next();
+      if (isApiDocsPage(req.originalUrl)) return redirectToLogin(res);
+      throw new CustomError("User not found", 404);
+    }
+
+    // 8. Redirect if already logged in and accessing login page
+    if (isLoginPage(req.originalUrl)) {
+      return res.redirect("/api-docs");
+    }
+
+    // 9. Attach user to request and proceed
+    req.user = user;
+    next();
+  }
+);
+
+// Handle user authorization based on roles
+export const authorize = catchAsyncError(
+  async (req: ExtendedRequest, res: Response, next: NextFunction) => {
+    // 1. Allow access to login page without token
+    if (isLoginPage(req.originalUrl)) {
+      return next();
+    }
+
+    // 2. Allow admin access
+    if (req.user?.isAdmin) {
+      return next();
+    }
+
+    // 3. Redirect to login if trying to access docs
+    if (isApiDocsPage(req.originalUrl)) {
+      return redirectToLogin(res);
+    }
+
+    // 4. Reject unauthorized access
+    throw new CustomError("Not authorized to access this resource", 403);
+  }
+);
+
+// Helper functions
+const isLoginPage = (path: string) =>
+  path === "/api-docs/login" || path === "/api-docs/login/";
+
+const isApiDocsPage = (path: string) =>
+  path === "/api-docs" || path === "/api-docs/";
+
+const redirectToLogin = (res: Response) => res.redirect(302, "/api-docs/login");
+
+const isValidJwtPayload = (decoded: any): decoded is JwtPayload =>
+  typeof decoded === "object" && decoded !== null;
