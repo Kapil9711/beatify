@@ -2,9 +2,14 @@
   "version": 2,
   "builds": [
     { "src": "dist/server.js", "use": "@vercel/node" },
-    { "src": "public/**/*", "use": "@vercel/static" }
+    { "src": "public/**/*", "use": "@vercel/static" },
+    { "src": "node_modules/swagger-ui-dist/**/*", "use": "@vercel/static" }
   ],
   "routes": [
+    {
+      "src": "/api-docs/(.*)",
+      "dest": "/dist/server.js"
+    },
     { "src": "/js/(.*)", "dest": "/public/js/$1" },
     { "src": "/css/(.*)", "dest": "/public/css/$1" },
     { "src": "/(.*)", "dest": "/dist/server.js" }
