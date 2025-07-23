@@ -21,7 +21,7 @@ router.route("/login").get(
 );
 
 router.use(
-  "/api-docs",
+  "/",
   express.static(path.join(__dirname, "../node_modules/swagger-ui-dist"))
 );
 
