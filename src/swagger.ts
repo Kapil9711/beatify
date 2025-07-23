@@ -10,10 +10,10 @@ const options: swaggerJsdoc.Options = {
     },
     servers: [
       {
-        url:
-          pathVariable.NODE_ENV == "development"
-            ? `http://localhost:${pathVariable.PORT || 5000}`
-            : "https://beatify-8xbt.onrender.com",
+        url: "https://beatify-8xbt.onrender.com",
+        // pathVariable.NODE_ENV == "development"
+        //   ? `http://localhost:${pathVariable.PORT || 5000}`
+        //   : "https://beatify-8xbt.onrender.com",
       },
     ],
   },
