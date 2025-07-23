@@ -5,6 +5,8 @@ import { swaggerSpec } from "../../swagger";
 import catchAsyncError from "../../middleware/catchAsyncError";
 import { ExtendedRequest } from "../../types/express/request";
 import apiDocsHandler from "../../middleware/apiDocsHandler";
+import express from "express";
+import path from "node:path";
 const router = Router();
 
 router.route("/login").get(
@@ -16,6 +18,11 @@ router.route("/login").get(
       res.render("login");
     }
   )
+);
+
+router.use(
+  "/api-docs",
+  express.static(path.join(__dirname, "../node_modules/swagger-ui-dist"))
 );
 
 router.use(
