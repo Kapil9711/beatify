@@ -2,20 +2,14 @@
   "version": 2,
   "builds": [
     {
-      "src": "./dist/server.ts",
+      "src": "./dist/server.js",
       "use": "@vercel/node"
     }
   ],
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "./dist/server.ts"
+      "dest": "/dist/server.js"
     }
-  ],
-  "regions": ["bom1"],
-  "build": {
-    "env": {
-      "NPM_CONFIG_PRODUCTION": "false"
-    }
-  }
+  ]
 }
