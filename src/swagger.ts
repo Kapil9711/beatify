@@ -13,7 +13,7 @@ const options: swaggerJsdoc.Options = {
         url:
           pathVariable.NODE_ENV == "development"
             ? `http://localhost:${pathVariable.PORT || 5000}`
-            : "https://beatify-8xbt.onrender.com/",
+            : "https://beatify-8xbt.onrender.com",
       },
     ],
   },
